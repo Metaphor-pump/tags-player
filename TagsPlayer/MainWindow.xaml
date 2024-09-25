@@ -1,0 +1,207 @@
+﻿<Window x:Class="TagsPlayer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodel="clr-namespace:TagsPlayer.ViewModel" 
+        xmlns:controls="clr-namespace:TagsPlayer.Controls" 
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        d:DataContext="{d:DesignInstance Type=viewmodel:PanelViewModel}"
+        mc:Ignorable="d"
+        WindowState="Maximized"
+        KeyDown="Window_KeyDown"
+        Focusable="True"
+        Title="TagsPlayer"
+        Icon="Images/a character 'T' looks like a musical notation.ico"
+        Background="Gray"
+    >
+    <Window.Resources>
+
+        <Style x:Key="CustomComboBoxStyle1" TargetType="{x:Type ContentControl}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ContentControl}">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto"  />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Menu Grid.Row="0" Background="#BBBBBB">
+                    <MenuItem Header="文件">
+                        <MenuItem x:Name="OpenDirectoryMenuItem" Header="打开目录" Click="OpenDirectoryMenuItem_Click"/>
+                        <MenuItem x:Name="cheangeDirMenuItem" Header="改变目录" Click="ChangeDirMenuItem_Click"/>
+                    </MenuItem>
+                </Menu>
+
+                <!--音乐详情侧栏-->
+                <StackPanel Grid.Row="1" Name="TagEditPanel" Background="Gray" >
+                    <Image x:Name="CoverImage" Width="200" Height="200" Stretch="Uniform" />
+                    <Label x:Name="ArtistLabel" Content="Artist" Margin="7,0,10,-3"/>
+                    <controls:CustomComboBox x:Name="ArtistComboBox" ItemsSource="{Binding SelectedArtists}">
+                    </controls:CustomComboBox>
+                    <Label x:Name="TitleLabel" Content="Title" Margin="7,0,10,-3"/>
+                    <controls:CustomComboBox x:Name="TitleComboBox" ItemsSource="{Binding SelectedTitles}">
+                    </controls:CustomComboBox>
+                    <Label x:Name="AlbumLabel" Content="Album" Margin="7,0,10,-3"/>
+                    <controls:CustomComboBox x:Name="AlbumComboBox" ItemsSource="{Binding SelectedAlbums}">
+                    </controls:CustomComboBox>
+                    <Label x:Name="Comment" Content="Comment" Margin="7,0,10,-3"/>
+                    <controls:CustomComboBox x:Name="CommentComboBox" ItemsSource="{Binding SelectedComments}">
+                    </controls:CustomComboBox>
+                    <Label x:Name="FileName" Content="FileName" Margin="7,0,10,-3"/>
+                    <controls:CustomComboBox x:Name="FileNameTextBlock" Text="{Binding SelectedFileName}">
+                    </controls:CustomComboBox>
+                    <!--<TextBlock x:Name="FileNameTextBlock"  Margin="10,0,10,0" Text="{Binding SelectedFileName}"  MouseUp="FileName_MouseUp"/>-->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <Button x:Name="SaveButton" Content="Save" Click="SaveButton_Click" Margin="10,5,0,0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!--标签页侧栏-->
+                <Grid Grid.Row="2" Background="Gray">
+                    <TabControl Background="Gray">
+                        <TabItem Header="Tags" Background="Gray">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" >
+                                <ItemsControl x:Name="TagsItem" ItemsSource="{Binding TagsList}" Grid.Row="1">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Vertical" Margin="3">
+                                                <TextBlock FontWeight="Bold"  AllowDrop="True"  
+                                                       MouseLeftButtonDown="TextBlock_MouseLeftButtonDown">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat=" {0}({1})">
+                                                            <Binding Path="Key" />
+                                                            <Binding Path="Value.Count" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <TabItem Header="Author" Background="Gray">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" >
+                                <ItemsControl x:Name="AuthorItem" ItemsSource="{Binding AuthorTagsList}" Grid.Row="1">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Vertical" Margin="3">
+                                                <TextBlock FontWeight="Bold"  AllowDrop="True"  
+                                                       MouseLeftButtonDown="TextBlock_MouseLeftButtonDown">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat=" {0}({1})">
+                                                            <Binding Path="Key" />
+                                                            <Binding Path="Value.Count" />
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </TabItem>
+                        <TabItem Header="File" Background="Gray">
+                        </TabItem>
+                    </TabControl>
+
+                </Grid>
+
+            </Grid>
+
+
+            <DockPanel Grid.Column="1" Background="#343434" >
+                
+                <!--底栏-->
+                <DockPanel DockPanel.Dock="Bottom" Background="Gray">
+                    <WrapPanel DockPanel.Dock="Left">
+                        <iconPacks:PackIconMaterial x:Name="FocusButton" Kind="CircleDouble" Margin="10,5,0,0" Background="Transparent" MouseUp="FocusButton_Click"/>
+                        <iconPacks:PackIconBoxIcons x:Name="VolumnButton" Kind="RegularVolumeFull"  Margin="10,5,0,0" Background="Transparent"/>
+                        <iconPacks:PackIconRemixIcon x:Name="LoopModeButton" Kind="RestartLine" Margin="10,5,0,0" Background="Transparent" MouseUp="LoopModeButton_Click"/>
+                        <iconPacks:PackIconMaterial Kind="SkipPrevious" Margin="10,5,0,0" Background="Transparent"/>
+                        <iconPacks:PackIconFontAwesome x:Name="PlayPauseButton" Kind="PlaySolid" Margin="10,5,0,5" Background="Transparent" MouseUp="PlayPauseButton_Click"/>
+                        <iconPacks:PackIconMaterial x:Name="PlayNextButton" Kind="SkipNext" Margin="10,5,0,0" Background="Transparent" MouseUp="PlayNextButton_Click"/>
+                    </WrapPanel>
+                    <Button x:Name="FilterButton" Content="Filter" Click="FilterButton_Click" Margin="10,0,10,0" Height="20" DockPanel.Dock="Right"/>
+                    <TextBox x:Name="FilterTextBox" DockPanel.Dock="Right" Width="300" Height="20" Background="#BBBBBB"/>
+                    <Label x:Name="NowTimeLabel" Content="01:40" DockPanel.Dock="Left"/>
+                    <Label x:Name="TotalTimeLabel" Content="03:40" DockPanel.Dock="Right"/>
+                    <Slider x:Name="ProgressSlider"  DockPanel.Dock="Left"
+                        IsSnapToTickEnabled="True" 
+                        Minimum="0" 
+                        Maximum="{Binding AudioDuration}" 
+                        Value="{Binding CurrentPosition, Mode=TwoWay}" 
+                        Thumb.PreviewMouseLeftButtonDown="ProgressSlider_MouseLeftButtonDown"
+                        Thumb.PreviewMouseMove="ProgressSlider_PreviewMouseMove"
+                        Thumb.PreviewMouseLeftButtonUp="ProgressSlider_PreviewMouseLeftButtonUp"
+                        Margin="0,5,0,5" />
+                </DockPanel>
+
+                <!--播放列表-->
+                <ListView x:Name="MusicListView" DockPanel.Dock="Top" Background="#343434"
+                      HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" BorderThickness="0"
+                      MouseDoubleClick="MusicList_MouseDoubleClick" SelectionChanged="MusicList_SelectionChanged" 
+                      AllowDrop="True" Drop="MusicList_Drop"  PreviewKeyDown="MusicList_PreviewKeyDown"
+                      ItemContainerStyle="{StaticResource ItemStyle}" AlternationCount="2">
+                    
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="删除源文件" Click="MenuItemDelete_Click" />
+                            <MenuItem Header="打开所在文件夹" Click="MenuItemOpenFolder_Click" />
+                            <MenuItem Header="添加标签" Click="AddTagButton_Click" />
+                            <MenuItem Header="清空播放列表" Click="ClearList_Click" />
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+
+                    <ListView.View>
+                        <GridView ColumnHeaderContainerStyle="{StaticResource ColumnHeaderStyle}">
+                            <GridViewColumn Header="Artist" DisplayMemberBinding="{Binding Artists}" Width="100"/>
+                            <GridViewColumn Header="Title" DisplayMemberBinding="{Binding File.Tag.Title}" Width="200"/>
+                            <GridViewColumn Header="Album" DisplayMemberBinding="{Binding File.Tag.Album}" Width="200" />
+                            <GridViewColumn Header="Kbps" DisplayMemberBinding="{Binding File.Properties.AudioBitrate}" Width="40" />
+                            <GridViewColumn Header="Comment" DisplayMemberBinding="{Binding File.Tag.Comment}" Width="100" />
+                            <GridViewColumn Header="Disc" DisplayMemberBinding="{Binding File.Tag.Disc}" Width="35" />
+                            <GridViewColumn Header="Track" DisplayMemberBinding="{Binding File.Tag.Track}" Width="35" />
+                            <GridViewColumn Header="FilePath" DisplayMemberBinding="{Binding File.Name}" Width="240" />
+                            <!--<GridViewColumn Header="Lyrics" DisplayMemberBinding="{Binding File.Tag.Lyrics}" Width="200"/>-->
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+    
+    
+    
+</Window>
