@@ -4,13 +4,26 @@ using System.ComponentModel;
 namespace TagsPlayer.ViewModel
 {
 
+    /**
+     * 整个节点的ViewModel
+     * 包含以下信息：
+     * 1.tag相关信息
+     * 2.播放器相关信息（播放位置，总时长）
+     * 3.选中曲目的元信息
+     */
     public class PanelViewModel : INotifyPropertyChanged
     {
         private List<KeyValuePair<string, List<MusicInfo>>> tagsList; 
         private List<KeyValuePair<string, List<MusicInfo>>> authorTagsList;
-        private List<MusicInfo> selectedMusics;
+        /**
+         * 播放器信息
+         */
         private double audioDuration;
         private double currentPosition;
+        /**
+         * 选中曲目的元信息
+         */
+        private List<MusicInfo> selectedMusics;
         private List<string> selectedTitles;
         private List<string> selectedComments;
         private List<string> selectArtists;
@@ -171,8 +184,7 @@ namespace TagsPlayer.ViewModel
 
         public void UpdateTitle(string title)
         {
-            if ("[keep]".Equals(title) || title == null)
-            { }
+            if ("[keep]".Equals(title) || title == null){ }
             else if ("[blank]".Equals(title))
             {
                 this.File.Tag.Title = "";
@@ -182,9 +194,9 @@ namespace TagsPlayer.ViewModel
                 this.File.Tag.Title = title;
             }
         }
+        
         public void UpdateComment(string comment) {
-            if ("[keep]".Equals(comment) || comment == null) 
-            { }
+            if ("[keep]".Equals(comment) || comment == null) { }
             else if ("[blank]".Equals(comment))
             {
                 this.File.Tag.Comment = "";

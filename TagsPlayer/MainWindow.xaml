@@ -34,6 +34,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300" />
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
 
 
@@ -45,14 +46,14 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
+                <!--菜单栏-->
                 <Menu Grid.Row="0" Background="#BBBBBB">
                     <MenuItem Header="文件">
-                        <MenuItem x:Name="OpenDirectoryMenuItem" Header="打开目录" Click="OpenDirectoryMenuItem_Click"/>
                         <MenuItem x:Name="cheangeDirMenuItem" Header="改变目录" Click="ChangeDirMenuItem_Click"/>
                     </MenuItem>
                 </Menu>
 
-                <!--音乐详情侧栏-->
+                <!--元信息详情侧栏-->
                 <StackPanel Grid.Row="1" Name="TagEditPanel" Background="Gray" >
                     <Image x:Name="CoverImage" Width="200" Height="200" Stretch="Uniform" />
                     <Label x:Name="ArtistLabel" Content="Artist" Margin="7,0,10,-3"/>
@@ -76,9 +77,10 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!--标签页侧栏-->
+                <!--Tab页模块-->
                 <Grid Grid.Row="2" Background="Gray">
                     <TabControl Background="Gray">
+                        <!--Tags Tab-->
                         <TabItem Header="Tags" Background="Gray">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" >
                                 <ItemsControl x:Name="TagsItem" ItemsSource="{Binding TagsList}" Grid.Row="1">
@@ -106,6 +108,7 @@
                             </ScrollViewer>
                         </TabItem>
 
+                        <!--作者 Tab-->
                         <TabItem Header="Author" Background="Gray">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" >
                                 <ItemsControl x:Name="AuthorItem" ItemsSource="{Binding AuthorTagsList}" Grid.Row="1">
@@ -141,12 +144,11 @@
             </Grid>
 
 
-            <DockPanel Grid.Column="1" Background="#343434" >
-                
+            <DockPanel Grid.Column="1" Background="#343434" AllowDrop="True" Drop="MusicList_Drop">
                 <!--底栏-->
-                <DockPanel DockPanel.Dock="Bottom" Background="Gray">
+                <DockPanel DockPanel.Dock="Top" Background="Gray" Height="28">
                     <WrapPanel DockPanel.Dock="Left">
-                        <iconPacks:PackIconMaterial x:Name="FocusButton" Kind="CircleDouble" Margin="10,5,0,0" Background="Transparent" MouseUp="FocusButton_Click"/>
+                        <iconPacks:PackIconMaterial x:Name="FocusButton" Kind="CircleDouble" Margin="10,5,0,0" Background="Transparent" MouseUp="SeekButton_Click"/>
                         <iconPacks:PackIconBoxIcons x:Name="VolumnButton" Kind="RegularVolumeFull"  Margin="10,5,0,0" Background="Transparent"/>
                         <iconPacks:PackIconRemixIcon x:Name="LoopModeButton" Kind="RestartLine" Margin="10,5,0,0" Background="Transparent" MouseUp="LoopModeButton_Click"/>
                         <iconPacks:PackIconMaterial Kind="SkipPrevious" Margin="10,5,0,0" Background="Transparent"/>
@@ -154,7 +156,7 @@
                         <iconPacks:PackIconMaterial x:Name="PlayNextButton" Kind="SkipNext" Margin="10,5,0,0" Background="Transparent" MouseUp="PlayNextButton_Click"/>
                     </WrapPanel>
                     <Button x:Name="FilterButton" Content="Filter" Click="FilterButton_Click" Margin="10,0,10,0" Height="20" DockPanel.Dock="Right"/>
-                    <TextBox x:Name="FilterTextBox" DockPanel.Dock="Right" Width="300" Height="20" Background="#BBBBBB"/>
+                    <TextBox x:Name="FilterTextBox" DockPanel.Dock="Right" Width="300" Height="20" Background="#BBBBBB" TextChanged="FilterTextChanged"/>
                     <Label x:Name="NowTimeLabel" Content="01:40" DockPanel.Dock="Left"/>
                     <Label x:Name="TotalTimeLabel" Content="03:40" DockPanel.Dock="Right"/>
                     <Slider x:Name="ProgressSlider"  DockPanel.Dock="Left"
@@ -169,10 +171,10 @@
                 </DockPanel>
 
                 <!--播放列表-->
-                <ListView x:Name="MusicListView" DockPanel.Dock="Top" Background="#343434"
+                <ListView x:Name="MusicListView" Background="#343434"
                       HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" BorderThickness="0"
                       MouseDoubleClick="MusicList_MouseDoubleClick" SelectionChanged="MusicList_SelectionChanged" 
-                      AllowDrop="True" Drop="MusicList_Drop"  PreviewKeyDown="MusicList_PreviewKeyDown"
+                      PreviewKeyDown="MusicList_PreviewKeyDown"
                       ItemContainerStyle="{StaticResource ItemStyle}" AlternationCount="2">
                     
                     <ListView.ContextMenu>
@@ -194,11 +196,14 @@
                             <GridViewColumn Header="Disc" DisplayMemberBinding="{Binding File.Tag.Disc}" Width="35" />
                             <GridViewColumn Header="Track" DisplayMemberBinding="{Binding File.Tag.Track}" Width="35" />
                             <GridViewColumn Header="FilePath" DisplayMemberBinding="{Binding File.Name}" Width="240" />
-                            <!--<GridViewColumn Header="Lyrics" DisplayMemberBinding="{Binding File.Tag.Lyrics}" Width="200"/>-->
                         </GridView>
                     </ListView.View>
                 </ListView>
             </DockPanel>
+
+            <Grid>
+                
+            </Grid>
         </Grid>
     </DockPanel>
     

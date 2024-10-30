@@ -26,7 +26,7 @@
         
         
         <Style x:Key="ColumnHeaderStyle" TargetType="{x:Type GridViewColumnHeader}">
-            <Setter Property="Background" Value="Gray" />
+            <Setter Property="Background" Value="#343434" />
             <Setter Property="BorderThickness" Value="10" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -42,15 +42,6 @@
         <Style x:Key="ItemStyle" TargetType="ListViewItem">
             <Setter Property="Height" Value="20" />
             <Setter Property="BorderThickness" Value="0" />
-
-            <!--<Setter Property="ContextMenu">
-                <Setter.Value>
-                    <ContextMenu>
-                        <MenuItem Header="删除源文件" Click="MenuItemDelete_Click" />
-                        <MenuItem Header="打开所在文件夹" Click="MenuItemOpenFolder_Click" />
-                    </ContextMenu>
-                </Setter.Value>
-            </Setter>-->
 
             <Style.Triggers>
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=(ItemsControl.AlternationIndex)}" Value="0">

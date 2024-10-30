@@ -18,8 +18,7 @@ namespace TagsPlayer
     public partial class MainWindow : Window
     {
 
-        private List<MusicInfo> MusicList = new();
-        private List<MusicInfo> OriginMusicList = new();
+        private List<MusicInfo> musicList = new();
         private readonly WaveOutEvent waveOut = new();
         private PanelViewModel panelModel;
         private DispatcherTimer timer;
@@ -31,7 +30,7 @@ namespace TagsPlayer
         public MainWindow() {
             InitializeComponent();
             waveOut.PlaybackStopped += WaveOut_PlaybackStopped;
-            MusicListView.ItemsSource = this.MusicList;
+            MusicListView.ItemsSource = this.musicList;
             panelModel = new PanelViewModel {
                 TagsList = new(),
                 AuthorTagsList = new()
@@ -39,7 +38,7 @@ namespace TagsPlayer
             DataContext = panelModel;
             ScanDir(ConfigurationManager.AppSettings["WorkDir"]);
 
-            // 定时器，用于更新播放位置
+            // 定时器，用于更新UI的播放位置
             timer = new DispatcherTimer {
                 Interval = TimeSpan.FromMilliseconds(500)
             };
@@ -57,11 +56,11 @@ namespace TagsPlayer
             if (HasNextMusic()) {
                 int nextIndex = GetNextMusicIndex();
                 this.playedMusicIndex = nextIndex;
-                PlayMusic((MusicInfo)MusicListView.Items[nextIndex]);
+                PlayMusic(musicList[nextIndex]);
             }
 
             bool HasNextMusic() {
-                return this.playedMusicIndex + 1 < MusicListView.Items.Count;
+                return this.playedMusicIndex + 1 < musicList.Count;
             }
 
             int GetNextMusicIndex() {
@@ -72,11 +71,13 @@ namespace TagsPlayer
                     return this.playedMusicIndex;
                 }
                 else {
-                    return new Random().Next(MusicListView.Items.Count);
+                    return new Random().Next(musicList.Count);
                 }
             }
         }
 
+
+        /*双击歌曲*/
         private void MusicList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
             var selectedMusic = (MusicInfo)MusicListView.SelectedItem;
             if (selectedMusic != null) {
@@ -87,11 +88,11 @@ namespace TagsPlayer
             }
         }
 
-        //使用自定义的MusicReader来获取waveStream，是从Naudio里魔改了一些东西，但是我不记得了。
-        //Naudio是不支持打开多种格式的。
+        //直接将歌曲文件读入内存为memoryStream，使用自定义的MusicReader来获取waveStream，是从Naudio里魔改了一些东西，但是我不记得了
         private void PlayMusic(MusicInfo musicInfo) {
             waveOut?.Dispose();
             try {
+                //直接将歌曲文件读入内存，后续不影响文件修改
                 byte[]? audioData = System.IO.File.ReadAllBytes(musicInfo.File.Name);
                 MemoryStream? memoryStream = new(audioData);
                 this.waveStream = new MyMusicReader(memoryStream);
@@ -100,7 +101,7 @@ namespace TagsPlayer
                 this.panelModel.AudioDuration = waveStream.TotalTime.TotalSeconds;
                 this.playedMusic = musicInfo;
                 this.PlayPauseButton.Kind = MahApps.Metro.IconPacks.PackIconFontAwesomeKind.PauseSolid;
-                focusMuiscList();
+                SeekPlayedMuisc();
                 this.TotalTimeLabel.Content = waveStream.TotalTime.ToString(@"mm\:ss");
             }
             catch (Exception ex) {
@@ -135,9 +136,19 @@ namespace TagsPlayer
             }
         }
 
-
+        /*保存按钮*/
         private void SaveButton_Click(object sender, RoutedEventArgs e) {
             SaveMetaData();
+        }
+
+
+        /*监听键盘：ctrl + s*/
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                SaveMetaData();
+            }
         }
 
         private void SaveMetaData() {
@@ -154,21 +165,12 @@ namespace TagsPlayer
             }
         }
 
-        private void TestSave() {
-            var music = this.MusicListView.ItemsSource.Cast<MusicInfo>().ToList()[0];
-            music.UpdateTitle(TitleComboBox.Text?.ToString());
-            music.UpdateArtists(ArtistComboBox.Text?.ToString());
-            music.UpdateAlbum(AlbumComboBox.Text?.ToString());
-            music.UpdateComment(CommentComboBox.Text?.ToString());
-            music.File.Save();
-            this.MusicListView.Items.Refresh();
-        }
-
         private void FileName_MouseUp(object sender, MouseEventArgs e) {
             string text = FileNameTextBlock.Text;
             Clipboard.SetText(text);
         }
 
+        /*开始暂停按钮*/
         private void PlayPauseButton_Click(object sender, RoutedEventArgs e) {
             if (waveOut.PlaybackState == PlaybackState.Playing) {
                 this.waveOut.Pause();
@@ -180,7 +182,7 @@ namespace TagsPlayer
             }
         }
 
-
+        /*拖动进度条*/
         private void ProgressSlider_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
             Slider slider = (Slider)sender;
             Point position = e.GetPosition(slider);
@@ -209,24 +211,58 @@ namespace TagsPlayer
         }
 
 
-        private void FocusButton_Click(object sender, RoutedEventArgs e) {
-            focusMuiscList();
+        /*跳转到正在播放的歌曲按钮*/
+        private void SeekButton_Click(object sender, RoutedEventArgs e) {
+            SeekPlayedMuisc();
         }
 
-        private void focusMuiscList() {
+        private void SeekPlayedMuisc() {
             if (this.playedMusic != null) {
                 this.MusicListView.ScrollIntoView(playedMusic);
                 this.MusicListView.SelectedIndex = playedMusicIndex;
             }
         }
 
+        /*循环按钮*/
         private void LoopModeButton_Click(object sender, RoutedEventArgs e) {
             this.LoopModeButton.Kind = Const.GetNextLoopMode(this.LoopModeButton.Kind);
         }
 
-        private void FilterButton_Click(Object sender, RoutedEventArgs e) {
+        /*过滤按钮
+          这里的过滤不影响实际播放列表，下一曲/上一曲的逻辑依然实际实际播放列表
+          过滤后的播放列表只是一个虚拟的视图，仅用于展示
+          当过滤文本框为空时，展示原始的实际播放列表
+         */
+        private void FilterButton_Click(Object sender, RoutedEventArgs e)
+        {
+            FilterList(FilterTextBox.Text);
         }
 
+        private void FilterTextChanged(object sender, TextChangedEventArgs e)
+        {
+            FilterList(FilterTextBox.Text);
+        }
+
+        private void FilterList(string s)
+        {
+            if (s.Trim().Length > 0)
+            {
+                //Tag的属性可能为空，必须做空检查
+                MusicListView.ItemsSource = musicList.Where(x =>
+                    (x.Artists?.ToLower().Contains(s.ToLower()) ?? false)
+                    || (x.File?.Tag?.Comment?.ToLower().Contains(s.ToLower()) ?? false)
+                    || (x.File?.Tag?.Title?.ToLower().Contains(s.ToLower()) ?? false)
+                    || (x.File?.Tag?.Album?.ToLower().Contains(s.ToLower()) ?? false)
+                );
+            }
+            else
+            {
+                MusicListView.ItemsSource = musicList;
+            }
+        }
+
+
+        /*AddTag按钮*/
         private void AddTagButton_Click(object sender, RoutedEventArgs e) {
             string userInput = Microsoft.VisualBasic.Interaction.InputBox("请输入你需要的Tag", "Tag", "");
             foreach (MusicInfo musicInfo in MusicListView.SelectedItems.Cast<MusicInfo>().ToList()) {
@@ -237,16 +273,17 @@ namespace TagsPlayer
                     musicInfo.File.Tag.Comment = userInput;
                 }
                 musicInfo.File.Save();
-                putKsV(this.panelModel.TagsList, userInput.Split(","), musicInfo);
+                PutKsV(this.panelModel.TagsList, userInput.Split(","), musicInfo);
                 this.TagsItem.Items.Refresh();
                 this.MusicListView.Items.Refresh();
             }
         }
 
-        private void ClearList_Click(object sender, RoutedEventArgs e) { 
-            MusicList.Clear();
-            MusicListView.Items.Refresh();
-        }
+
+        /**
+         * 播放列表选中改变事件
+         * 
+         */
         private void MusicList_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             var selectedMusics = MusicListView.SelectedItems.Cast<MusicInfo>().ToList();
             if (selectedMusics.Count <= 0) {
@@ -292,6 +329,8 @@ namespace TagsPlayer
             this.panelModel.SelectedFileName = fileName;
         }
 
+        /*菜单：改变/扫描工作目录
+         此举会初始化Tag表*/
         public void ChangeDirMenuItem_Click(object sender, RoutedEventArgs e) {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
@@ -299,18 +338,11 @@ namespace TagsPlayer
                 config.AppSettings.Settings["WorkDir"].Value = dialog.SelectedPath;
                 config.Save(ConfigurationSaveMode.Modified);
                 ConfigurationManager.RefreshSection("appSettings");
-                this.MusicList.Clear();
+                this.musicList.Clear();
                 ScanDir(dialog.SelectedPath);
             }
         }
 
-        private void OpenDirectoryMenuItem_Click(object sender, RoutedEventArgs e) {
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
-
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                ScanDir(dialog.SelectedPath);
-            }
-        }
         private void ScanDir(string filePath) {
             string[] audioExtensions = { "*.mp3", "*.flac", "*.ape", "*.aac","*.m4a" };
             var musicFiles = new List<string>();
@@ -330,14 +362,13 @@ namespace TagsPlayer
                     var musicInfo = new MusicInfo {
                         File = tfile
                     };
-                    MusicList.Add(musicInfo);
+                    musicList.Add(musicInfo);
                     AnalyzeMusicTag(musicInfo);
                 }
                 catch (Exception ex) {
                     Console.WriteLine("Error reading file " + file + ": " + ex.Message);
                 }
             }
-            OriginMusicList = MusicList.ToList();
             panelModel.TagsList.Sort(new SizeComparer());
             panelModel.AuthorTagsList.Sort(new SizeComparer());
             TagsItem.Items.Refresh();
@@ -346,59 +377,38 @@ namespace TagsPlayer
 
         private void AnalyzeMusicTag(MusicInfo musicInfo) {
             string[] performers = musicInfo.File.Tag.Performers;
-            putKsV(this.panelModel.AuthorTagsList, performers, musicInfo);
+            PutKsV(this.panelModel.AuthorTagsList, performers, musicInfo);
             string[] comment = musicInfo.File.Tag.Comment?.Split(",");
-            putKsV(this.panelModel.TagsList, comment, musicInfo);
-            putKV(this.panelModel.TagsList, musicInfo.File.Tag.Album, musicInfo);
+            PutKsV(this.panelModel.TagsList, comment, musicInfo);
+            //PutKV(this.panelModel.TagsList, musicInfo.File.Tag.Album, musicInfo);
         }
 
-        private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-            if (sender is TextBlock textBlock && textBlock.DataContext is KeyValuePair<string, List<MusicInfo>> item) {
-                DragDrop.DoDragDrop(textBlock, item, DragDropEffects.Copy);
-            }
-        }
 
-        private void MusicList_Drop(object sender, DragEventArgs e) {
-            if (e.Data.GetData(typeof(KeyValuePair<string, List<MusicInfo>>)) is KeyValuePair<string, List<MusicInfo>> droppedTagItem) {
-                foreach (MusicInfo musicInfo in droppedTagItem.Value) {
-                    MusicList.Add(musicInfo);
-                }
-                MusicListView.Items.Refresh();
-            }
-
-        }
-
-        private void MusicList_PreviewKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Delete) {
-                var selectItems = MusicListView.SelectedItems;
-                var start = MusicListView.SelectedIndex;
-                if (selectItems.Count + start > MusicList.Count) {
-                    MusicList.RemoveRange(start, selectItems.Count);
-                } else {
-                    MusicList.RemoveRange(start, MusicList.Count - start);
-                }
-                MusicListView.Items.Refresh();
-            }
-        }
-
-        private void putKsV(List<KeyValuePair<string, List<MusicInfo>>> tagsList, string[] performers, MusicInfo musicInfo) {
-            if (performers == null) {
+        private void PutKsV(List<KeyValuePair<string, List<MusicInfo>>> tagsList, string[] performers, MusicInfo musicInfo)
+        {
+            if (performers == null)
+            {
                 return;
             }
-            foreach (string performer in performers) {
-                putKV(tagsList, performer, musicInfo);
+            foreach (string performer in performers)
+            {
+                PutKV(tagsList, performer, musicInfo);
             }
         }
 
-        private void putKV(List<KeyValuePair<string, List<MusicInfo>>> tagList, string key, MusicInfo value) {
-            if (key == null || key.Length >= 30) {
+        private void PutKV(List<KeyValuePair<string, List<MusicInfo>>> tagList, string key, MusicInfo value)
+        {
+            if (key == null || key.Length >= 30)
+            {
                 return;
             }
-            else if (this.tagsMap.ContainsKey(key)) {
+            else if (this.tagsMap.ContainsKey(key))
+            {
                 var musicList = this.tagsMap[key];
                 musicList.Add(value);
             }
-            else {
+            else
+            {
                 var list = new List<MusicInfo>() {
                     {value}
                 };
@@ -407,13 +417,41 @@ namespace TagsPlayer
             }
         }
 
-
-        private void Window_KeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control) {
-                SaveMetaData();
+        private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+            if (sender is TextBlock textBlock && textBlock.DataContext is KeyValuePair<string, List<MusicInfo>> item) {
+                DragDrop.DoDragDrop(textBlock, item, DragDropEffects.Copy);
             }
         }
 
+
+        /*拖动事件结束：拖动tags进播放列表*/
+        private void MusicList_Drop(object sender, DragEventArgs e) {
+            if (e.Data.GetData(typeof(KeyValuePair<string, List<MusicInfo>>)) is KeyValuePair<string, List<MusicInfo>> droppedTagItem) {
+                foreach (MusicInfo musicInfo in droppedTagItem.Value) {
+                    musicList.Add(musicInfo);
+                }
+                MusicListView.Items.Refresh();
+            }
+
+        }
+
+        /*监听键盘事件：监听delete按钮*/
+        private void MusicList_PreviewKeyDown(object sender, KeyEventArgs e) {
+            if (e.Key == Key.Delete) {
+                var selectItems = MusicListView.SelectedItems;
+                var start = MusicListView.SelectedIndex;
+                if (selectItems.Count + start > musicList.Count) {
+                    musicList.RemoveRange(start, selectItems.Count);
+                } else {
+                    musicList.RemoveRange(start, musicList.Count - start);
+                }
+                MusicListView.Items.Refresh();
+            }
+        }
+
+
+
+        /*右键菜单：删除文件*/
         private void MenuItemDelete_Click(object sender, RoutedEventArgs e)
         {
             var filePath = MusicListView.SelectedItems.Cast<MusicInfo>().ToList()?[0]?.File.Name;
@@ -425,7 +463,7 @@ namespace TagsPlayer
                     try
                     {
                         File.Delete(filePath);
-                        MusicList.RemoveAt(MusicListView.SelectedIndex);
+                        musicList.RemoveAt(MusicListView.SelectedIndex);
                         MusicListView.Items.Refresh();
                     }
                     catch (Exception ex)
@@ -436,7 +474,7 @@ namespace TagsPlayer
             }
         }
 
-
+        /*右键菜单：选择文件夹*/
         private void MenuItemOpenFolder_Click(object sender, RoutedEventArgs e)
         {
             var filePath = MusicListView.SelectedItems.Cast<MusicInfo>().ToList()?[0]?.File.Name;
@@ -451,6 +489,13 @@ namespace TagsPlayer
                     MessageBox.Show("打开文件夹时发生错误: " + ex.Message);
                 }
             }
+        }
+
+        /*右键菜单：清空*/
+        private void ClearList_Click(object sender, RoutedEventArgs e)
+        {
+            musicList.Clear();
+            MusicListView.Items.Refresh();
         }
 
     }
