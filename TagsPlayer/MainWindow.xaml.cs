@@ -102,7 +102,7 @@ namespace TagsPlayer
                 this.PlayPauseButton.Kind = MahApps.Metro.IconPacks.PackIconFontAwesomeKind.PauseSolid;
                 SeekPlayedMuisc();
                 this.TotalTimeLabel.Content = waveStream.TotalTime.ToString(@"mm\:ss");
-
+                LyricTextBlock.Text = musicInfo.File.Tag.Lyrics;
                 if (musicInfo.File.Tag.Pictures.Length > 0)
                 {
                     var cover = new MemoryStream(musicInfo.File.Tag.Pictures?[0]?.Data.Data);

@@ -34,7 +34,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300" />
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="270" />
             </Grid.ColumnDefinitions>
 
 
@@ -145,7 +145,7 @@
 
 
             <DockPanel Grid.Column="1" Background="#343434" AllowDrop="True" Drop="MusicList_Drop">
-                <!--底栏-->
+                <!--顶栏-->
                 <DockPanel DockPanel.Dock="Top" Background="Gray" Height="28">
                     <WrapPanel DockPanel.Dock="Left">
                         <iconPacks:PackIconMaterial x:Name="FocusButton" Kind="CircleDouble" Margin="10,5,0,0" Background="Transparent" MouseUp="SeekButton_Click"/>
@@ -156,7 +156,7 @@
                         <iconPacks:PackIconMaterial x:Name="PlayNextButton" Kind="SkipNext" Margin="10,5,0,0" Background="Transparent" MouseUp="PlayNextButton_Click"/>
                     </WrapPanel>
                     <Button x:Name="FilterButton" Content="Filter" Click="FilterButton_Click" Margin="10,0,10,0" Height="20" DockPanel.Dock="Right"/>
-                    <TextBox x:Name="FilterTextBox" DockPanel.Dock="Right" Width="300" Height="20" Background="#BBBBBB" TextChanged="FilterTextChanged"/>
+                    <TextBox x:Name="FilterTextBox" DockPanel.Dock="Right" Width="200" Height="20" Background="#BBBBBB" TextChanged="FilterTextChanged"/>
                     <Label x:Name="NowTimeLabel" Content="01:40" DockPanel.Dock="Left"/>
                     <Label x:Name="TotalTimeLabel" Content="03:40" DockPanel.Dock="Right"/>
                     <Slider x:Name="ProgressSlider"  DockPanel.Dock="Left"
@@ -201,8 +201,13 @@
                 </ListView>
             </DockPanel>
 
-            <Grid>
-                
+
+            <!--歌词栏-->
+            <Grid Grid.Column="2">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <TextBlock x:Name="LyricTextBlock" TextWrapping="Wrap" FontSize="13" LineHeight="30" Margin="10">
+                    </TextBlock>
+                </ScrollViewer>
             </Grid>
         </Grid>
     </DockPanel>

@@ -6,6 +6,7 @@
     <RootNamespace>TagsPlayer</RootNamespace>
 	<Nullable>enable</Nullable>
 	<UseWPF>true</UseWPF>
+	<EnableWinRTSupport>true</EnableWinRTSupport>
 	<ApplicationIcon>Images\a character 'T' looks like a musical notation.ico</ApplicationIcon>
   </PropertyGroup>
 
