@@ -5,14 +5,17 @@ namespace TagsPlayer.ViewModel
 {
 
     /**
-     * 整个节点的ViewModel
+     * 左侧栏ViewModel
      * 包含以下信息：
      * 1.tag相关信息
      * 2.播放器相关信息（播放位置，总时长）
      * 3.选中曲目的元信息
      */
-    public class PanelViewModel : INotifyPropertyChanged
+    public class MetaInfoPanelModel : INotifyPropertyChanged
     {
+        /**
+         * tag统计信息
+         */
         private List<KeyValuePair<string, List<MusicInfo>>> tagsList; 
         private List<KeyValuePair<string, List<MusicInfo>>> authorTagsList;
         /**

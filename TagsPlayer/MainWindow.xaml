@@ -6,7 +6,7 @@
         xmlns:viewmodel="clr-namespace:TagsPlayer.ViewModel" 
         xmlns:controls="clr-namespace:TagsPlayer.Controls" 
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        d:DataContext="{d:DesignInstance Type=viewmodel:PanelViewModel}"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MetaInfoPanelModel}"
         mc:Ignorable="d"
         WindowState="Maximized"
         KeyDown="Window_KeyDown"

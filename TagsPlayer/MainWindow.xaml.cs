@@ -20,7 +20,7 @@ namespace TagsPlayer
 
         private List<MusicInfo> musicList = new();
         private readonly WaveOutEvent waveOut = new();
-        private PanelViewModel panelModel;
+        private MetaInfoPanelModel metaInfoPanelModel;
         private DispatcherTimer timer;
         private WaveStream waveStream;
         private readonly Dictionary<string, List<MusicInfo>> tagsMap = new();
@@ -31,13 +31,12 @@ namespace TagsPlayer
             InitializeComponent();
             waveOut.PlaybackStopped += WaveOut_PlaybackStopped;
             MusicListView.ItemsSource = this.musicList;
-            panelModel = new PanelViewModel {
+            metaInfoPanelModel = new MetaInfoPanelModel {
                 TagsList = new(),
                 AuthorTagsList = new()
             };
-            DataContext = panelModel;
+            DataContext = metaInfoPanelModel;
             ScanDir(ConfigurationManager.AppSettings["WorkDir"]);
-
             // 定时器，用于更新UI的播放位置
             timer = new DispatcherTimer {
                 Interval = TimeSpan.FromMilliseconds(500)
@@ -98,11 +97,16 @@ namespace TagsPlayer
                 this.waveStream = new MyMusicReader(memoryStream);
                 this.waveOut.Init(waveStream);
                 this.waveOut.Play();
-                this.panelModel.AudioDuration = waveStream.TotalTime.TotalSeconds;
+                this.metaInfoPanelModel.AudioDuration = waveStream.TotalTime.TotalSeconds;
                 this.playedMusic = musicInfo;
                 this.PlayPauseButton.Kind = MahApps.Metro.IconPacks.PackIconFontAwesomeKind.PauseSolid;
                 SeekPlayedMuisc();
                 this.TotalTimeLabel.Content = waveStream.TotalTime.ToString(@"mm\:ss");
+
+                if (musicInfo.File.Tag.Pictures.Length > 0)
+                {
+                    var cover = new MemoryStream(musicInfo.File.Tag.Pictures?[0]?.Data.Data);
+                }
             }
             catch (Exception ex) {
                 MessageBox.Show(ex.Message);
@@ -118,7 +122,7 @@ namespace TagsPlayer
                 this.waveStream = new MediaFoundationReader(musicInfo.File.Name);
                 this.waveOut.Init(waveStream);
                 this.waveOut.Play();
-                this.panelModel.AudioDuration = waveStream.TotalTime.TotalSeconds;
+                this.metaInfoPanelModel.AudioDuration = waveStream.TotalTime.TotalSeconds;
                 this.playedMusic = musicInfo;
                 this.PlayPauseButton.Kind = MahApps.Metro.IconPacks.PackIconFontAwesomeKind.PauseSolid;
                 this.TotalTimeLabel.Content = waveStream.TotalTime.ToString(@"mm\:ss");
@@ -131,7 +135,7 @@ namespace TagsPlayer
 
         private void Timer_Tick(object sender, EventArgs e) {
             if (waveOut != null && waveOut.PlaybackState == PlaybackState.Playing) {
-                this.panelModel.CurrentPosition = waveStream.CurrentTime.TotalSeconds;
+                this.metaInfoPanelModel.CurrentPosition = waveStream.CurrentTime.TotalSeconds;
                 NowTimeLabel.Content = waveStream.CurrentTime.ToString(@"mm\:ss");
             }
         }
@@ -153,15 +157,23 @@ namespace TagsPlayer
 
         private void SaveMetaData() {
             var musicInfos = this.MusicListView.SelectedItems.Cast<MusicInfo>().ToList();
-            if (musicInfos != null && musicInfos.Count > 0) {
-                foreach (MusicInfo music in musicInfos) {
-                    music.UpdateTitle(TitleComboBox.Text?.ToString());
-                    music.UpdateArtists(ArtistComboBox.Text?.ToString());
-                    music.UpdateAlbum(AlbumComboBox.Text?.ToString());
-                    music.UpdateComment(CommentComboBox.Text?.ToString());
-                    music.File.Save();
+            try {
+                if (musicInfos != null && musicInfos.Count > 0)
+                {
+                    foreach (MusicInfo music in musicInfos)
+                    {
+                        music.UpdateTitle(TitleComboBox.Text?.ToString());
+                        music.UpdateArtists(ArtistComboBox.Text?.ToString());
+                        music.UpdateAlbum(AlbumComboBox.Text?.ToString());
+                        music.UpdateComment(CommentComboBox.Text?.ToString());
+                        music.File.Save();
+                    }
+                    this.MusicListView.Items.Refresh();
                 }
-                this.MusicListView.Items.Refresh();
+            } catch(Exception ex) 
+            {
+
+                MessageBox.Show("保存元信息时发生错误: " + ex.Message);
             }
         }
 
@@ -262,18 +274,20 @@ namespace TagsPlayer
         }
 
 
-        /*AddTag按钮*/
+        /*右键菜单：AddTag*/
         private void AddTagButton_Click(object sender, RoutedEventArgs e) {
             string userInput = Microsoft.VisualBasic.Interaction.InputBox("请输入你需要的Tag", "Tag", "");
             foreach (MusicInfo musicInfo in MusicListView.SelectedItems.Cast<MusicInfo>().ToList()) {
-                if (musicInfo.File.Tag.Comment != null) {
-                    musicInfo.File.Tag.Comment += ("," + userInput);
-                }
-                else {
+                if (musicInfo.File.Tag.Comment == null)
+                {
                     musicInfo.File.Tag.Comment = userInput;
                 }
+                else if (musicInfo.File.Tag.Comment != null && !musicInfo.File.Tag.Comment.Contains(userInput)) 
+                {
+                    musicInfo.File.Tag.Comment += ("," + userInput);
+                }
                 musicInfo.File.Save();
-                PutKsV(this.panelModel.TagsList, userInput.Split(","), musicInfo);
+                PutKsV(this.metaInfoPanelModel.TagsList, userInput.Split(","), musicInfo);
                 this.TagsItem.Items.Refresh();
                 this.MusicListView.Items.Refresh();
             }
@@ -322,16 +336,17 @@ namespace TagsPlayer
                 CommentComboBox.SelectedItem = "[keep]";
                 CoverImage.Source = null;
             }
-            this.panelModel.SelectedTitles = titles;
-            this.panelModel.SelectedAlbums = albums;
-            this.panelModel.SelectedComments = comments;
-            this.panelModel.SelectedArtists = artists;
-            this.panelModel.SelectedFileName = fileName;
+            this.metaInfoPanelModel.SelectedTitles = titles;
+            this.metaInfoPanelModel.SelectedAlbums = albums;
+            this.metaInfoPanelModel.SelectedComments = comments;
+            this.metaInfoPanelModel.SelectedArtists = artists;
+            this.metaInfoPanelModel.SelectedFileName = fileName;
         }
 
         /*菜单：改变/扫描工作目录
          此举会初始化Tag表*/
         public void ChangeDirMenuItem_Click(object sender, RoutedEventArgs e) {
+
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -346,7 +361,8 @@ namespace TagsPlayer
         private void ScanDir(string filePath) {
             string[] audioExtensions = { "*.mp3", "*.flac", "*.ape", "*.aac","*.m4a" };
             var musicFiles = new List<string>();
-
+            metaInfoPanelModel.AuthorTagsList.Clear();
+            metaInfoPanelModel.TagsList.Clear();
             foreach (var extension in audioExtensions) {
                 if (filePath != null && !"".Equals(filePath)) {
                     try {
@@ -358,9 +374,8 @@ namespace TagsPlayer
 
             foreach (string file in musicFiles) {
                 try {
-                    var tfile = TagLib.File.Create(file);
                     var musicInfo = new MusicInfo {
-                        File = tfile
+                        File = TagLib.File.Create(file)
                     };
                     musicList.Add(musicInfo);
                     AnalyzeMusicTag(musicInfo);
@@ -369,17 +384,18 @@ namespace TagsPlayer
                     Console.WriteLine("Error reading file " + file + ": " + ex.Message);
                 }
             }
-            panelModel.TagsList.Sort(new SizeComparer());
-            panelModel.AuthorTagsList.Sort(new SizeComparer());
+            metaInfoPanelModel.TagsList.Sort(new SizeComparer());
+            metaInfoPanelModel.AuthorTagsList.Sort(new SizeComparer());
             TagsItem.Items.Refresh();
             MusicListView.Items.Refresh();
         }
 
         private void AnalyzeMusicTag(MusicInfo musicInfo) {
+            PutKV(this.metaInfoPanelModel.TagsList,"all", musicInfo);
             string[] performers = musicInfo.File.Tag.Performers;
-            PutKsV(this.panelModel.AuthorTagsList, performers, musicInfo);
+            PutKsV(this.metaInfoPanelModel.AuthorTagsList, performers, musicInfo);
             string[] comment = musicInfo.File.Tag.Comment?.Split(",");
-            PutKsV(this.panelModel.TagsList, comment, musicInfo);
+            PutKsV(this.metaInfoPanelModel.TagsList, comment, musicInfo);
             //PutKV(this.panelModel.TagsList, musicInfo.File.Tag.Album, musicInfo);
         }
 
