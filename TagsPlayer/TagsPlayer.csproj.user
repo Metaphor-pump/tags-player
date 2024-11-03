@@ -3,14 +3,4 @@
   <PropertyGroup>
     <_LastSelectedProfileId>C:\Users\zzc\OneDrive\代码\个人小代码\TagsPlayer\TagsPlayer\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Update="Controls\MusicListView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Controls\MusicListView.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
 </Project>

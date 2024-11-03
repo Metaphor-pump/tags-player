@@ -19,25 +19,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Model\VoidFile.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Images\a character %27T%27 looks like a musical notation.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-	  <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
+	  <PackageReference Include="MahApps.Metro.IconPacks.BoxIcons" Version="5.1.0" />
+	  <PackageReference Include="MahApps.Metro.IconPacks.FontAwesome" Version="5.1.0" />
+	  <PackageReference Include="MahApps.Metro.IconPacks.RemixIcon" Version="5.1.0" />
 	  <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="4.11.0" />
 	  <PackageReference Include="NAudio" Version="2.2.1" />
 	  <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
 	  <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-	<Folder Include="Model\" />
   </ItemGroup>
 
   <ItemGroup>

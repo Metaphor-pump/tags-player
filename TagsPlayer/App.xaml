@@ -57,5 +57,21 @@
             </Style.Triggers>
         </Style>
 
+
+        <PathGeometry x:Key="Repeat">
+            M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z
+        </PathGeometry>
+        <PathGeometry x:Key="Repeat1">M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z</PathGeometry>
+        <PathGeometry x:Key="Circle">
+            M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z
+        </PathGeometry>
+        <PathGeometry x:Key="SkipPrev">M6,18V6H8V18H6M9.5,12L18,6V18L9.5,12Z</PathGeometry>
+        <PathGeometry x:Key="SkipNext">M16,18H18V6H16M6,18L14.5,12L6,6V18Z</PathGeometry>
+        <PathGeometry x:Key="VolumeHigh">M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z</PathGeometry>
+        <PathGeometry x:Key="VolumeMute">M3,9H7L12,4V20L7,15H3V9M16.59,12L14,9.41L15.41,8L18,10.59L20.59,8L22,9.41L19.41,12L22,14.59L20.59,16L18,13.41L15.41,16L14,14.59L16.59,12Z</PathGeometry>
+        <PathGeometry x:Key="VolumeVariantOff">M5.64,3.64L21.36,19.36L19.95,20.78L16,16.83V20L11,15H7V9H8.17L4.22,5.05L5.64,3.64M16,4V11.17L12.41,7.58L16,4Z</PathGeometry>
+
+        <PathGeometry x:Key="PlaySolid">M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z</PathGeometry>
+        <PathGeometry x:Key="PauseSolid">M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z</PathGeometry>
     </Application.Resources>
 </Application>

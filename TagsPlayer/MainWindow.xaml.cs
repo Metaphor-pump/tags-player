@@ -75,6 +75,12 @@ namespace TagsPlayer
             }
         }
 
+        /*菜单：保存*/
+        private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SaveMetaData();
+        }
+
 
         /*双击歌曲*/
         private void MusicList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
@@ -101,7 +107,7 @@ namespace TagsPlayer
                 this.playedMusic = musicInfo;
                 this.PlayPauseButton.Kind = MahApps.Metro.IconPacks.PackIconFontAwesomeKind.PauseSolid;
                 SeekPlayedMuisc();
-                this.TotalTimeLabel.Content = waveStream.TotalTime.ToString(@"mm\:ss");
+                //this.TotalTimeLabel.Content = waveStream.TotalTime.ToString(@"mm\:ss");
                 LyricTextBlock.Text = musicInfo.File.Tag.Lyrics;
                 if (musicInfo.File.Tag.Pictures.Length > 0)
                 {
@@ -125,7 +131,7 @@ namespace TagsPlayer
                 this.metaInfoPanelModel.AudioDuration = waveStream.TotalTime.TotalSeconds;
                 this.playedMusic = musicInfo;
                 this.PlayPauseButton.Kind = MahApps.Metro.IconPacks.PackIconFontAwesomeKind.PauseSolid;
-                this.TotalTimeLabel.Content = waveStream.TotalTime.ToString(@"mm\:ss");
+                //this.TotalTimeLabel.Content = waveStream.TotalTime.ToString(@"mm\:ss");
             }
             catch (Exception ex)
             {
@@ -136,15 +142,9 @@ namespace TagsPlayer
         private void Timer_Tick(object sender, EventArgs e) {
             if (waveOut != null && waveOut.PlaybackState == PlaybackState.Playing) {
                 this.metaInfoPanelModel.CurrentPosition = waveStream.CurrentTime.TotalSeconds;
-                NowTimeLabel.Content = waveStream.CurrentTime.ToString(@"mm\:ss");
+                //NowTimeLabel.Content = waveStream.CurrentTime.ToString(@"mm\:ss");
             }
         }
-
-        /*保存按钮*/
-        private void SaveButton_Click(object sender, RoutedEventArgs e) {
-            SaveMetaData();
-        }
-
 
         /*监听键盘：ctrl + s*/
         private void Window_KeyDown(object sender, KeyEventArgs e)

@@ -51,6 +51,8 @@
                     <MenuItem Header="文件">
                         <MenuItem x:Name="cheangeDirMenuItem" Header="改变目录" Click="ChangeDirMenuItem_Click"/>
                     </MenuItem>
+
+                    <MenuItem Header="保存" Click="SaveMenuItem_Click"/>
                 </Menu>
 
                 <!--元信息详情侧栏-->
@@ -69,12 +71,9 @@
                     <controls:CustomComboBox x:Name="CommentComboBox" ItemsSource="{Binding SelectedComments}">
                     </controls:CustomComboBox>
                     <Label x:Name="FileName" Content="FileName" Margin="7,0,10,-3"/>
-                    <controls:CustomComboBox x:Name="FileNameTextBlock" Text="{Binding SelectedFileName}">
+                    <controls:CustomComboBox x:Name="FileNameTextBlock" Text="{Binding SelectedFileName}" Margin="10,0,10,10">
                     </controls:CustomComboBox>
                     <!--<TextBlock x:Name="FileNameTextBlock"  Margin="10,0,10,0" Text="{Binding SelectedFileName}"  MouseUp="FileName_MouseUp"/>-->
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <Button x:Name="SaveButton" Content="Save" Click="SaveButton_Click" Margin="10,5,0,0" />
-                    </StackPanel>
                 </StackPanel>
 
                 <!--Tab页模块-->
@@ -147,19 +146,20 @@
             <DockPanel Grid.Column="1" Background="#343434" AllowDrop="True" Drop="MusicList_Drop">
                 <!--顶栏-->
                 <DockPanel DockPanel.Dock="Top" Background="Gray" Height="28">
+                    <TextBox x:Name="FilterTextBox" DockPanel.Dock="Right" Width="200" Height="20" Background="#BBBBBB" TextChanged="FilterTextChanged"/>
+                    <TextBlock x:Name="FilterText" DockPanel.Dock="Right" Text="Filter :" Margin="10,5,10,0" Height="20" />
+
                     <WrapPanel DockPanel.Dock="Left">
-                        <iconPacks:PackIconMaterial x:Name="FocusButton" Kind="CircleDouble" Margin="10,5,0,0" Background="Transparent" MouseUp="SeekButton_Click"/>
-                        <iconPacks:PackIconBoxIcons x:Name="VolumnButton" Kind="RegularVolumeFull"  Margin="10,5,0,0" Background="Transparent"/>
+                        <iconPacks:PackIconMaterial x:Name="FocusButton" Kind="CircleDouble" Margin="10,5,0,0" MouseUp="SeekButton_Click"/>
+                        <iconPacks:PackIconMaterial x:Name="VolumnButton" Kind="VolumeHigh"  Margin="10,5,0,0" Background="Transparent"/>
                         <iconPacks:PackIconRemixIcon x:Name="LoopModeButton" Kind="RestartLine" Margin="10,5,0,0" Background="Transparent" MouseUp="LoopModeButton_Click"/>
-                        <iconPacks:PackIconMaterial Kind="SkipPrevious" Margin="10,5,0,0" Background="Transparent"/>
+                        <iconPacks:PackIconMaterial Kind="SkipPrevious" Margin="10,5,0,5" Background="Transparent"/>
                         <iconPacks:PackIconFontAwesome x:Name="PlayPauseButton" Kind="PlaySolid" Margin="10,5,0,5" Background="Transparent" MouseUp="PlayPauseButton_Click"/>
                         <iconPacks:PackIconMaterial x:Name="PlayNextButton" Kind="SkipNext" Margin="10,5,0,0" Background="Transparent" MouseUp="PlayNextButton_Click"/>
                     </WrapPanel>
-                    <Button x:Name="FilterButton" Content="Filter" Click="FilterButton_Click" Margin="10,0,10,0" Height="20" DockPanel.Dock="Right"/>
-                    <TextBox x:Name="FilterTextBox" DockPanel.Dock="Right" Width="200" Height="20" Background="#BBBBBB" TextChanged="FilterTextChanged"/>
-                    <Label x:Name="NowTimeLabel" Content="01:40" DockPanel.Dock="Left"/>
-                    <Label x:Name="TotalTimeLabel" Content="03:40" DockPanel.Dock="Right"/>
-                    <Slider x:Name="ProgressSlider"  DockPanel.Dock="Left"
+                    <!--<Label x:Name="NowTimeLabel" Content="01:40" DockPanel.Dock="Left"/>
+                        <Label x:Name="TotalTimeLabel" Content="03:40" DockPanel.Dock="Right"/>-->
+                    <Slider x:Name="ProgressSlider" 
                         IsSnapToTickEnabled="True" 
                         Minimum="0" 
                         Maximum="{Binding AudioDuration}" 
@@ -167,7 +167,7 @@
                         Thumb.PreviewMouseLeftButtonDown="ProgressSlider_MouseLeftButtonDown"
                         Thumb.PreviewMouseMove="ProgressSlider_PreviewMouseMove"
                         Thumb.PreviewMouseLeftButtonUp="ProgressSlider_PreviewMouseLeftButtonUp"
-                        Margin="0,5,0,5" />
+                        Margin="5,5,5,5" />
                 </DockPanel>
 
                 <!--播放列表-->
